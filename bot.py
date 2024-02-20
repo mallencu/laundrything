@@ -1,11 +1,9 @@
 import os
 import json
-from slack import WebClient
+import requests
 from slackeventsapi import SlackEventAdapter
 
-# Initialize Slack app and event adapter
-slack_token = os.environ["SLACK_API_TOKEN"]
-client = WebClient(token=slack_token)
+# Initialize Slack event adapter
 event_adapter = SlackEventAdapter(os.environ["SLACK_SIGNING_SECRET"], "/slack/events")
 
 # In-memory data store for laundry machine status
@@ -34,7 +32,7 @@ def handle_interaction(payload):
             response = "Invalid machine type."
 
         # Send response to user
-        client.chat_postMessage(channel=user_id, text=response)
+        post_message(user_id, response)
 
     elif action == "/laundry_status":
         response = "Laundry Machine Status:\n"
@@ -44,20 +42,10 @@ def handle_interaction(payload):
                 response += f"{machine_type.capitalize()} Machine {i}: {status}\n"
 
         # Send response to channel where the command was issued
-        client.chat_postMessage(channel=payload["channel"]["id"], text=response)
+        post_message(payload["channel"]["id"], response)
 
-# Register event handler for message events
-@event_adapter.on("message")
-def handle_message(event_data):
-    message = event_data["event"]
-    # Process the message here (e.g., check if it's a command related to laundry)
-
-# Register event handler for interactive message actions
-@event_adapter.on("interactive")
-def handle_interactive(event_data):
-    payload = json.loads(event_data["payload"])
-    handle_interaction(payload)
-
-# Start the event listener
-if __name__ == "__main__":
-    event_adapter.start(port=int(os.environ.get("PORT", 3000)))
+# Function to send message to Slack
+def post_message(channel, text):
+    url = "https://slack.com/api/chat.postMessage"
+    headers = {
+        "Authorization": f"Bearer {os.en
