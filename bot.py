@@ -48,4 +48,22 @@ def handle_interaction(payload):
 def post_message(channel, text):
     url = "https://slack.com/api/chat.postMessage"
     headers = {
-        "Authorization": f"Bearer {os.en}
+        "Authorization": f"Bearer {os.environ['SLACK_API_TOKEN']}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "channel": channel,
+        "text": text
+    }
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    print(response.json())
+
+# Register event handler for interactive message actions
+@event_adapter.on("interactive")
+def handle_interactive(event_data):
+    payload = json.loads(event_data["payload"])
+    handle_interaction(payload)
+
+# Start the event listener
+if __name__ == "__main__":
+    event_adapter.start(port=int(os.environ.get("PORT", 3000)))
