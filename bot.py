@@ -58,12 +58,4 @@ def post_message(channel, text):
     response = requests.post(url, headers=headers, data=json.dumps(data))
     print(response.json())
 
-# Register event handler for interactive message actions
-@event_adapter.on("interactive")
-def handle_interactive(event_data):
-    payload = json.loads(event_data["payload"])
-    handle_interaction(payload)
-
-# Start the event listener
-if __name__ == "__main__":
-    event_adapter.start(port=int(os.environ.get("PORT", 3000)))
+.listen(process.env.PORT || 5000)
