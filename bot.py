@@ -22,14 +22,14 @@ if machine_type in laundry_status:
     response = f"Thank you for noting that you've used {machine_type} machine {machine_number}."
 else: response = "Invalid machine type."
         
-        post_message(user_id, response)
+post_message(user_id, response)
 
 elif action == "/laundry_status":response = "Laundry Machine Status:\n"
 for machine_type, machines in laundry_status.items():
 for i, time_left in enumerate(machines, start=1):
     status = "Available" if time_left == 0 else f"In use ({time_left} minutes left)"response += f"{machine_type.capitalize()} Machine {i}: {status}\n"
 
-        post_message(payload["channel"]["id"], response)
+post_message(payload["channel"]["id"], response)
 
 def post_message(channel, text):
     url = "https://slack.com/api/chat.postMessage"
@@ -41,5 +41,5 @@ def post_message(channel, text):
         "channel": channel,
         "text": text
     }
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-    print(response.json())
+response = requests.post(url, headers=headers, data=json.dumps(data))
+print(response.json())
