@@ -60,6 +60,4 @@ async def handle_slack_events():
     return jsonify({"status": "received"}), 200
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.create_task(event_adapter.start_async())
-    app.run(port=int(os.environ.get("PORT", 3000)))
+    asyncio.run(event_adapter.start_async(port=int(os.environ.get("PORT", 3000))))
