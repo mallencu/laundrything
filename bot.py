@@ -12,11 +12,6 @@ laundry_status = {
     "drying": [0] * 4,   # 4 drying machines
 }
 
-# Define function to handle interactive message actions and commands
-def handle_interaction(payload):
-    user_id = payload["user"]["id"]
-    action = payload["actions"][0]["value"]
-
     # Handle different actions
     if action.startswith("note_laundry"):
         # Extract machine type, number, and time left from action
