@@ -27,7 +27,7 @@ else: response = "Invalid machine type."
         
 post_message(user_id, response)
 
-    elif action == "/laundry_status":
+elif action == "/laundry_status":
     response = "Laundry Machine Status:\n"
 for machine_type, machines in laundry_status.items():
 for i, time_left in enumerate(machines, start=1):
