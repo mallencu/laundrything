@@ -60,4 +60,4 @@ def handle_interactive(event_data):
 
 # Start the event listener
 if __name__ == "__main__":
-    event_adapter.start(port=3000)
+    event_adapter.start(port=int(os.environ.get("PORT", 3000)))
