@@ -48,4 +48,4 @@ def handle_interaction(payload):
 def post_message(channel, text):
     url = "https://slack.com/api/chat.postMessage"
     headers = {
-        "Authorization": f"Bearer {os.en
+        "Authorization": f"Bearer {os.en}
