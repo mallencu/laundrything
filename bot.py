@@ -4,7 +4,7 @@ import requests
 from slackeventsapi import SlackEventAdapter
 
 # Initialize Slack event adapter
-event_adapter = SlackEventAdapter(os.environ["SLACK_SIGNING_SECRET"], "/slack/events")
+event_adapter = SlackEventAdapter(None, "/slack/events")
 
 # In-memory data store for laundry machine status
 laundry_status = {
