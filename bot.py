@@ -1,5 +1,6 @@
 import os
 import json
+import requests
 from flask import Flask, request
 
 app = Flask(__name__)
@@ -17,8 +18,6 @@ def handle_interaction():
     payload = json.loads(request.form["payload"])
     user_id = payload["user"]["id"]
     action = payload["actions"][0]["value"]
-
-    global laundry_status
 
     # Handle different actions
     if action.startswith("note_laundry"):
@@ -59,9 +58,14 @@ def post_message(channel, text):
         "channel": channel,
         "text": text
     }
-    response = requests.post(url, headers=headers, json=data)
-    print(response.json())
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()
+        print(response.json())
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending message to Slack: {e}")
 
-# Start the Flask app
 if __name__ == "__main__":
-    app.run(port=3000)
+    # Use dynamic port provided by Heroku, defaulting to 3000 for local development
+    port = int(os.environ.get("PORT", 3000))
+    app.run(host="0.0.0.0", port=port)
