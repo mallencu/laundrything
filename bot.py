@@ -1,10 +1,13 @@
-import os
-import json
 import requests
 from slackeventsapi import SlackEventAdapter
+from slack_sdk.web import WebClient
+import os
 
-# Initialize Slack event adapter
-event_adapter = SlackEventAdapter(None, "/slack/events")
+slack_signing_secret = os.environ["SLACK_SIGNING_SECRET"]
+slack_events_adapter = SlackEventAdapter(slack_signing_secret, "/slack/events")
+
+slack_bot_token = os.environ["SLACK_API_TOKEN"]
+slack_client = WebClient(slack_bot_token)
 
 # In-memory data store for laundry machine status
 laundry_status = {
@@ -44,3 +47,5 @@ def post_message(channel, text):
     }
 response = requests.post(url, headers=headers, data=json.dumps(data))
 print(response.json())
+
+slack_events_adapter.start(port=5000)
