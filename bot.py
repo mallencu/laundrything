@@ -58,4 +58,5 @@ def post_message(channel, text):
     response = requests.post(url, headers=headers, data=json.dumps(data))
     print(response.json())
 
-.listen(process.env.PORT || 5000)
+if __name__ == "__main__":
+    event_adapter.start(port=int(os.environ.get("PORT", 3000)))
