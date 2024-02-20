@@ -6,7 +6,7 @@ import os
 slack_signing_secret = os.environ["SLACK_SIGNING_SECRET"]
 slack_events_adapter = SlackEventAdapter(slack_signing_secret, "/slack/events")
 
-slack_bot_token = os.environ["SLACK_API_TOKEN"]
+slack_bot_token = os.environ["SLACK_BOT_TOKEN"]
 slack_client = WebClient(slack_bot_token)
 
 laundry_status = {
