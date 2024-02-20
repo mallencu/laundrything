@@ -9,6 +9,7 @@ slack_events_adapter = SlackEventAdapter(slack_signing_secret, "/slack/events")
 slack_bot_token = os.environ["SLACK_API_TOKEN"]
 slack_client = WebClient(slack_bot_token)
 
+@slack_events_adapter.on("message") 
 # In-memory data store for laundry machine status
 laundry_status = {
     "washing": [0] * 3,  # 3 washing machines
