@@ -1,9 +1,10 @@
 import os
 import json
 import requests
-from flask import Flask, request
+from slackeventsapi import SlackEventAdapter
 
-app = Flask(__name__)
+# Initialize Slack event adapter
+event_adapter = SlackEventAdapter(os.environ["SLACK_SIGNING_SECRET"], "/slack/events")
 
 # In-memory data store for laundry machine status
 laundry_status = {
@@ -11,16 +12,14 @@ laundry_status = {
     "drying": [0] * 4,   # 4 drying machines
 }
 
-# Define route for interactive message actions and commands
-@app.route("/interactive", methods=["POST"])
-@app.route("/command", methods=["POST"])
-def handle_interaction():
-    payload = json.loads(request.form["payload"])
+# Define function to handle interactive message actions and commands
+def handle_interaction(payload):
     user_id = payload["user"]["id"]
     action = payload["actions"][0]["value"]
 
     # Handle different actions
     if action.startswith("note_laundry"):
+        # Extract machine type, number, and time left from action
         _, machine_type, machine_number, time_left = action.split()
         machine_number = int(machine_number)
         time_left = int(time_left)
@@ -45,8 +44,6 @@ def handle_interaction():
         # Send response to channel where the command was issued
         post_message(payload["channel"]["id"], response)
 
-    return ""
-
 # Function to send message to Slack
 def post_message(channel, text):
     url = "https://slack.com/api/chat.postMessage"
@@ -58,14 +55,15 @@ def post_message(channel, text):
         "channel": channel,
         "text": text
     }
-    try:
-        response = requests.post(url, headers=headers, json=data)
-        response.raise_for_status()
-        print(response.json())
-    except requests.exceptions.RequestException as e:
-        print(f"Error sending message to Slack: {e}")
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    print(response.json())
 
+# Register event handler for interactive message actions
+@event_adapter.on("interactive")
+def handle_interactive(event_data):
+    payload = json.loads(event_data["payload"])
+    handle_interaction(payload)
+
+# Start the event listener
 if __name__ == "__main__":
-    # Use dynamic port provided by Heroku, defaulting to 3000 for local development
-    port = int(os.environ.get("PORT", 3000))
-    app.run(host="0.0.0.0", port=port)
+    event_adapter.start(port=int(os.environ.get("PORT", 3000)))
