@@ -1,12 +1,9 @@
-# Import necessary libraries
 import os
 import json
-from flask import Flask, request, jsonify
 from slack import WebClient
 from slackeventsapi import SlackEventAdapter
 
-# Set up Flask app and Slack client
-app = Flask(__name__)
+# Initialize Slack app and event adapter
 slack_token = os.environ["SLACK_API_TOKEN"]
 client = WebClient(token=slack_token)
 event_adapter = SlackEventAdapter(os.environ["SLACK_SIGNING_SECRET"], "/slack/events")
@@ -17,14 +14,10 @@ laundry_status = {
     "drying": [0] * 4,   # 4 drying machines
 }
 
-# Define route for interactive message actions and commands
-@app.route("/interactive", methods=["POST"])
-@app.route("/command", methods=["POST"])
-def handle_interaction():
-    payload = request.form["payload"]
-    payload_dict = json.loads(payload)
-    user_id = payload_dict["user"]["id"]
-    action = payload_dict["actions"][0]["value"]
+# Define function to handle interactive message actions and commands
+def handle_interaction(payload):
+    user_id = payload["user"]["id"]
+    action = payload["actions"][0]["value"]
 
     # Handle different actions
     if action.startswith("note_laundry"):
@@ -51,10 +44,20 @@ def handle_interaction():
                 response += f"{machine_type.capitalize()} Machine {i}: {status}\n"
 
         # Send response to channel where the command was issued
-        client.chat_postMessage(channel=payload_dict["channel"]["id"], text=response)
+        client.chat_postMessage(channel=payload["channel"]["id"], text=response)
 
-    return ""
+# Register event handler for message events
+@event_adapter.on("message")
+def handle_message(event_data):
+    message = event_data["event"]
+    # Process the message here (e.g., check if it's a command related to laundry)
 
-# Start the Flask app
+# Register event handler for interactive message actions
+@event_adapter.on("interactive")
+def handle_interactive(event_data):
+    payload = json.loads(event_data["payload"])
+    handle_interaction(payload)
+
+# Start the event listener
 if __name__ == "__main__":
-    app.run(port=3000)
+    event_adapter.start(port=3000)
