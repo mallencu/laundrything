@@ -24,9 +24,7 @@ if machine_type in laundry_status:
     laundry_status[machine_type][machine_number - 1] = time_left
     response = f"Thank you for noting that you've used {machine_type} machine {machine_number}."
 else: response = "Invalid machine type."
-        
-post_message(user_id, response)
-
+        post_message(user_id, response)
 elif action == "/laundry_status":
     response = "Laundry Machine Status:\n"
 for machine_type, machines in laundry_status.items():
